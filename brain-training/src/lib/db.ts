@@ -1,10 +1,17 @@
-import { PrismaClient } from "@prisma/client";
+import type { PrismaClient as PrismaClientType } from "@prisma/client";
 
-declare global {
-  // eslint-disable-next-line no-var
-  var prisma: PrismaClient | undefined;
+const PRISMA_KEY = Symbol.for("brain-training.prisma");
+
+type GlobalStore = Record<PropertyKey, unknown>;
+const store = globalThis as unknown as GlobalStore;
+
+export async function getPrisma(): Promise<PrismaClientType> {
+  const cached = store[PRISMA_KEY] as PrismaClientType | undefined;
+  if (cached) return cached;
+  const mod = await import("@prisma/client");
+  const client: PrismaClientType = new mod.PrismaClient();
+  if (process.env.NODE_ENV !== "production") {
+    store[PRISMA_KEY] = client;
+  }
+  return client;
 }
-
-export const prisma: PrismaClient = global.prisma ?? new PrismaClient();
-
-if (process.env.NODE_ENV !== "production") global.prisma = prisma;

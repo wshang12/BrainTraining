@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,6 +18,13 @@ export const metadata: Metadata = {
   description: "Cognitive training app",
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#0ea5e9",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -25,8 +33,9 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}>
-        <div className="min-h-dvh pb-[72px]">{children}</div>
-        {/* Tab bar will be injected by per-route layouts when needed */}
+        <ThemeProvider>
+          <div className="min-h-dvh pb-[72px]">{children}</div>
+        </ThemeProvider>
       </body>
     </html>
   );

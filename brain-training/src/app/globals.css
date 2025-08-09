@@ -3,6 +3,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --base-font-size: 16px;
 }
 
 @theme inline {
@@ -19,6 +20,8 @@
   }
 }
 
+html { font-size: var(--base-font-size); }
+
 body {
   background: var(--background);
   color: var(--foreground);
@@ -29,3 +32,12 @@ body {
 .tabbar-safe { padding-bottom: calc(env(safe-area-inset-bottom) + 72px); }
 .fixed-tabbar { height: 72px; padding-bottom: env(safe-area-inset-bottom); }
 .touch-lg { min-height: 48px; min-width: 48px; }
+
+/***** Accessibility toggles *****/
+.high-contrast {
+  --background: #000000;
+  --foreground: #ffffff;
+}
+.large-text {
+  --base-font-size: 18px; /* default large; can add larger tiers later */
+}
