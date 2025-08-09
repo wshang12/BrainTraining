@@ -1,0 +1,103 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  email        String?  @unique
+  phone        String?  @unique
+  wechatOpenId String?  @unique
+  appleId      String?  @unique
+  googleId     String?  @unique
+
+  profile      Profile?
+  abilityScores AbilityScore[]
+  sessions     GameSession[]
+  xpEvents     XpEvent[]
+  streak       Streak?
+  entitlements Entitlement[]
+}
+
+model Profile {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  age       Int?
+  gender    String?  // male|female|other
+  region    String?
+  device    String?
+  preferences Json?
+}
+
+model AbilityScore {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  // ability dimension: attention|memory|speed|spatial|logic
+  dimension String
+  theta     Float    @default(0)
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, dimension])
+}
+
+model GameSession {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  gameId     String   // e.g., tracklight|pairmaster|fastmatch
+  planType   String?  // auto|custom
+  startedAt  DateTime @default(now())
+  endedAt    DateTime?
+  difficulty Float?
+  xpGained   Int      @default(0)
+  outcome    GameOutcome?
+}
+
+model GameOutcome {
+  id         String   @id @default(cuid())
+  sessionId  String   @unique
+  session    GameSession @relation(fields: [sessionId], references: [id])
+  score      Int      @default(0)
+  acc        Float?
+  rtMean     Float?
+  rtVar      Float?
+  mistakes   Int?     @default(0)
+  ddaDelta   Float?   // difficulty adjustment
+  raw        Json?
+}
+
+model XpEvent {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  amount    Int
+  reason    String
+  createdAt DateTime @default(now())
+}
+
+model Streak {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  days      Int      @default(0)
+  lastDate  DateTime?
+  shields   Int      @default(0)
+}
+
+model Entitlement {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  type      String   // subscription|lifetime
+  status    String   // active|expired|canceled
+  startedAt DateTime @default(now())
+  endsAt    DateTime?
+}
