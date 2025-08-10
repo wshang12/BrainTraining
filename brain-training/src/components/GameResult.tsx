@@ -32,6 +32,7 @@ export default function GameResult({
   const [aiAnalysis, setAiAnalysis] = useState<string>("");
   const [analyzing, setAnalyzing] = useState(true);
   const [showDetails, setShowDetails] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
 
   useEffect(() => {
     // 检查成就
@@ -50,6 +51,14 @@ export default function GameResult({
 
     // 保存游戏统计
     saveGameStats();
+
+    // 检查订阅状态
+    const subscription = localStorage.getItem('subscription');
+    setIsSubscribed(subscription === 'pro');
+
+    // 记录今日游戏次数
+    const todayGames = parseInt(localStorage.getItem('todayGames') || '0');
+    localStorage.setItem('todayGames', String(todayGames + 1));
   }, []);
 
   const analyzePerformance = async () => {
@@ -213,7 +222,7 @@ export default function GameResult({
             )}
           </div>
 
-          {/* 操作按钮 */}
+          {/* 行动按钮 */}
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={onPlayAgain}
@@ -229,12 +238,123 @@ export default function GameResult({
             </Link>
           </div>
 
+          {/* 智能付费转化提示 - 基于表现和进度 */}
+          {renderPaymentPrompt()}
+
           {/* 分享按钮 */}
-          <button className="w-full py-3 text-sm text-genius-600 hover:text-genius-700">
-            分享成绩 →
+          <button 
+            onClick={handleShare}
+            className="w-full py-3 text-sm text-genius-600 hover:text-genius-700 flex items-center justify-center gap-2"
+          >
+            <span>分享成绩</span>
+            <span>→</span>
           </button>
         </div>
       </div>
     </div>
   );
+
+  function renderPaymentPrompt() {
+    // 高分时展示"解锁更多挑战"
+    if (stars === 3 && !isSubscribed) {
+      return (
+        <div className="mt-4 p-4 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 space-y-3">
+          <div className="flex items-start gap-3">
+            <span className="text-2xl">🚀</span>
+            <div className="flex-1">
+              <h4 className="font-semibold text-amber-700 dark:text-amber-400">
+                你已经超越了 95% 的玩家！
+              </h4>
+              <p className="text-sm text-foreground/70 mt-1">
+                解锁专业版，挑战更高难度，与全球高手一较高下
+              </p>
+            </div>
+          </div>
+          <Link 
+            href="/subscribe?from=game_result_high_score"
+            className="btn btn-primary w-full py-2.5 text-sm"
+          >
+            了解 Pro 会员特权 →
+          </Link>
+        </div>
+      );
+    }
+
+    // 连续游戏时展示"无限训练"
+    const todayGames = parseInt(localStorage.getItem('todayGames') || '0');
+    if (todayGames >= 3 && !isSubscribed) {
+      return (
+        <div className="mt-4 p-4 rounded-xl bg-gradient-to-r from-genius-50 to-wisdom-50 dark:from-genius-900/20 dark:to-wisdom-900/20 space-y-3">
+          <div className="flex items-start gap-3">
+            <span className="text-2xl">💪</span>
+            <div className="flex-1">
+              <h4 className="font-semibold text-genius-700 dark:text-genius-400">
+                今日已训练 {todayGames} 次，训练热情满满！
+              </h4>
+              <p className="text-sm text-foreground/70 mt-1">
+                升级 Pro 享受无限训练次数，加速认知提升
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <button 
+              onClick={() => watchAd()}
+              className="btn flex-1 py-2.5 text-sm bg-foreground/10"
+            >
+              看广告继续
+            </button>
+            <Link 
+              href="/subscribe?from=game_result_limit"
+              className="btn btn-primary flex-1 py-2.5 text-sm"
+            >
+              升级 Pro
+            </Link>
+          </div>
+        </div>
+      );
+    }
+
+    // 解锁成就时展示"查看更多成就"
+    if (unlockedAchievements.length > 0 && !isSubscribed) {
+      return (
+        <div className="mt-4 p-4 rounded-xl bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 space-y-3">
+          <div className="flex items-start gap-3">
+            <span className="text-2xl">🏆</span>
+            <div className="flex-1">
+              <h4 className="font-semibold text-purple-700 dark:text-purple-400">
+                Pro 会员专属：50+ 隐藏成就等你发现
+              </h4>
+              <p className="text-sm text-foreground/70 mt-1">
+                独特的成就徽章、专属头像框、全球排行榜
+              </p>
+            </div>
+          </div>
+          <Link 
+            href="/subscribe?from=game_result_achievement"
+            className="btn w-full py-2.5 text-sm bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+          >
+            查看所有会员特权 →
+          </Link>
+        </div>
+      );
+    }
+
+    return null;
+  }
+
+  function handleShare() {
+    // 分享逻辑
+    if (navigator.share) {
+      navigator.share({
+        title: `我在${gameName}获得了${score}分！`,
+        text: `准确率${(accuracy * 100).toFixed(0)}%，${stars}星评价！来挑战我吧！`,
+        url: window.location.href
+      });
+    }
+  }
+
+  function watchAd() {
+    // 模拟观看广告
+    alert('广告功能开发中...');
+  }
 }

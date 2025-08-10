@@ -17,6 +17,8 @@ export default function Tracklight() {
   const [showResult, setShowResult] = useState(false);
   const [personalBest, setPersonalBest] = useState(0);
   const [difficulty, setDifficulty] = useState(0.7);
+  const [showTutorial, setShowTutorial] = useState(false);
+  const [hasPlayedBefore, setHasPlayedBefore] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -186,6 +188,16 @@ export default function Tracklight() {
     }
   }, [running]);
 
+  useEffect(() => {
+    // 检查是否第一次玩
+    const played = localStorage.getItem('hasPlayed_tracklight');
+    if (!played) {
+      setShowTutorial(true);
+    } else {
+      setHasPlayedBefore(true);
+    }
+  }, []);
+
   const startGame = () => {
     setRunning(true);
     setTimeLeft(30_000);
@@ -193,6 +205,14 @@ export default function Tracklight() {
     setAcc(1);
     setRtMean(1000);
     setShowResult(false);
+    
+    // 标记已经玩过
+    localStorage.setItem('hasPlayed_tracklight', 'true');
+  };
+
+  const handleStartFromTutorial = () => {
+    setShowTutorial(false);
+    startGame();
   };
 
   const playAgain = () => {
@@ -224,15 +244,78 @@ export default function Tracklight() {
           <div>难度: {difficulty.toFixed(1)}</div>
         </div>
         
-        {!running && !showResult && (
+        {!running && !showResult && !showTutorial && (
           <button onClick={startGame} className="btn btn-primary px-8 py-3">
             开始游戏
           </button>
         )}
       </div>
 
+      {/* 新手教程 */}
+      {showTutorial && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <div className="bg-background rounded-3xl shadow-2xl max-w-md w-full overflow-hidden animate-float">
+            <div className="bg-gradient-to-br from-genius-400 to-genius-600 p-6 text-white text-center">
+              <span className="text-5xl mb-4 block">🎯</span>
+              <h2 className="text-2xl font-bold mb-2">游戏教程</h2>
+              <p className="text-white/90">30秒快速上手</p>
+            </div>
+            
+            <div className="p-6 space-y-6">
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full bg-red-500 flex-shrink-0 animate-pulse" />
+                  <div>
+                    <h3 className="font-semibold">点击红色光点</h3>
+                    <p className="text-sm text-foreground/70">这是你的目标，快速准确地点击它们</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full bg-green-500 flex-shrink-0" />
+                  <div>
+                    <h3 className="font-semibold">避开其他颜色</h3>
+                    <p className="text-sm text-foreground/70">点击错误会扣分，保持专注</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl flex-shrink-0">⏱️</span>
+                  <div>
+                    <h3 className="font-semibold">30秒挑战</h3>
+                    <p className="text-sm text-foreground/70">在有限时间内获得最高分</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-genius-50 dark:bg-genius-900/20 rounded-xl p-4">
+                <p className="text-sm text-center">
+                  <span className="font-medium">小技巧：</span>
+                  准确率比速度更重要，宁可慢一点也要点准确！
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={() => setShowTutorial(false)}
+                  className="btn py-3 bg-foreground/10"
+                >
+                  稍后再玩
+                </button>
+                <button
+                  onClick={handleStartFromTutorial}
+                  className="btn btn-primary py-3"
+                >
+                  开始游戏
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 游戏说明 */}
-      {!running && !showResult && (
+      {!running && !showResult && !showTutorial && (
         <section className="card-interactive p-5 space-y-3">
           <h3 className="font-semibold">游戏说明</h3>
           <ul className="space-y-2 text-sm text-foreground/70">
@@ -241,6 +324,14 @@ export default function Tracklight() {
             <li>• 游戏时长30秒</li>
             <li>• 准确率越高，得分越高</li>
           </ul>
+          
+          {hasPlayedBefore && (
+            <div className="pt-2 border-t">
+              <p className="text-sm text-foreground/60">
+                个人最佳: <span className="font-medium text-genius-600">{personalBest}</span> 分
+              </p>
+            </div>
+          )}
         </section>
       )}
 
