@@ -326,12 +326,12 @@ export default function MePage() {
           <span className="text-foreground/40 group-hover:text-foreground transition-colors">→</span>
         </Link>
 
-        <Link href="/history" className="card-interactive p-4 flex items-center justify-between group">
+        <Link href="/analysis" className="card-interactive p-4 flex items-center justify-between group">
           <div className="flex items-center gap-3">
             <span className="text-2xl">📊</span>
             <div>
-              <div className="font-medium">训练记录</div>
-              <div className="text-sm text-foreground/60">查看详细数据分析</div>
+              <div className="font-medium">数据分析</div>
+              <div className="text-sm text-foreground/60">查看能力雷达图和进步曲线</div>
             </div>
           </div>
           <span className="text-foreground/40 group-hover:text-foreground transition-colors">→</span>
