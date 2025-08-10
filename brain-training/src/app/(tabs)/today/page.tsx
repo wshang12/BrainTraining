@@ -9,15 +9,21 @@ export default function TodayPage() {
   const [freePlaysLeft, setFreePlaysLeft] = useState<number>(0);
   const [adsLeft, setAdsLeft] = useState<number>(0);
   const [cooldownSec, setCooldownSec] = useState<number>(0);
+  const [entitlement, setEntitlement] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
-      const res = await fetch("/api/training/today", { cache: "no-store" });
-      const data = await res.json();
+      const [resPlan, resEnt] = await Promise.all([
+        fetch("/api/training/today", { cache: "no-store" }),
+        fetch("/api/pay/status", { cache: "no-store" }),
+      ]);
+      const data = await resPlan.json();
       setPlan(data.plan);
       setFreePlaysLeft(data.freePlaysLeft);
       setAdsLeft(data.adsLeft);
       setCooldownSec(data.cooldownSec);
+      const ent = await resEnt.json();
+      setEntitlement(ent.entitlement ?? null);
     })();
   }, []);
 
@@ -31,17 +37,24 @@ export default function TodayPage() {
           <div className="text-sm text-gray-500">免费剩余 {freePlaysLeft} 次</div>
         </div>
         <div className="mt-3 grid grid-cols-1 gap-3">
-          {plan.map((item, idx) => (
-            <div key={item.gameId} className="flex items-center justify-between rounded-lg border p-3">
-              <div>
-                <div className="font-semibold">{idx + 1}. {item.label}</div>
-                <div className="text-xs text-gray-500">建议难度 {item.suggestedDifficulty.toFixed(1)}</div>
+          {plan.map((item, idx) => {
+            const paywalled = item.gameId === "fastmatch" && !entitlement;
+            return (
+              <div key={item.gameId} className="flex items-center justify-between rounded-lg border p-3">
+                <div>
+                  <div className="font-semibold">{idx + 1}. {item.label} {paywalled && <span className="ml-1 text-xs text-amber-600">付费</span>}</div>
+                  <div className="text-xs text-gray-500">建议难度 {item.suggestedDifficulty.toFixed(1)}</div>
+                </div>
+                {paywalled ? (
+                  <Link href="/subscribe" className="px-3 py-2 rounded-md bg-amber-600 text-white font-medium">订阅解锁</Link>
+                ) : (
+                  <Link href={`/games/${item.gameId}`} className="px-3 py-2 rounded-md bg-sky-600 text-white font-medium">
+                    开始
+                  </Link>
+                )}
               </div>
-              <Link href={`/games/${item.gameId}`} className="px-3 py-2 rounded-md bg-sky-600 text-white font-medium">
-                开始
-              </Link>
-            </div>
-          ))}
+            );
+          })}
         </div>
         {freePlaysLeft <= 0 && (
           <div className="mt-3 flex items-center gap-2 text-sm">
