@@ -7,7 +7,7 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { mockAuth, type User } from '@/lib/auth/mockAuth';
+import { mockAuth, type User } from '@/lib/auth';
 
 interface UserState {
   // 用户信息

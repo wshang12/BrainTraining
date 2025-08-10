@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
@@ -107,7 +107,7 @@ const PRICING = [
   }
 ];
 
-export default function SubscribePage() {
+function SubscribeContent() {
   const searchParams = useSearchParams();
   const from = searchParams.get('from');
   const [selectedPlan, setSelectedPlan] = useState('quarterly');
@@ -343,5 +343,13 @@ export default function SubscribePage() {
         </section>
       </div>
     </main>
+  );
+}
+
+export default function SubscribePage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">加载中...</div>}>
+      <SubscribeContent />
+    </Suspense>
   );
 }
