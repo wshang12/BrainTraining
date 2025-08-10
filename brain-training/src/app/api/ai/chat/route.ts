@@ -7,7 +7,7 @@ const requestSchema = z.object({
     role: z.enum(['system', 'user', 'assistant']),
     content: z.string()
   })),
-  systemPromptType: z.enum(['coach', 'analyzer', 'motivator']).optional(),
+  systemPromptType: z.enum(['trainingAdvice', 'performanceAnalysis', 'motivation', 'generalChat']).optional(),
   temperature: z.number().min(0).max(2).optional(),
   maxTokens: z.number().min(1).max(4000).optional()
 });
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         success: false,
         error: '请求参数无效',
-        details: error.errors
+        details: (error as any).errors
       }, { status: 400 });
     }
 

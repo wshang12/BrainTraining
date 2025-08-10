@@ -88,7 +88,7 @@ export default function AIPage() {
             })),
             { role: 'user', content: input }
           ],
-          systemPromptType: 'coach',
+          systemPromptType: 'generalChat',
           temperature: 0.8
         });
         aiResponse = response.content;

@@ -91,7 +91,7 @@ class AIClient {
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), provider.timeout || 30000);
 
-        const response = await fetch(`${provider.baseUrl}/chat/completions`, {
+        const response = await fetch(`${provider.baseURL}/chat/completions`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

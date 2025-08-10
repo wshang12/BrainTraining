@@ -1,11 +1,11 @@
 /**
  * AI 服务配置
- * 支持多提供商故障转移和负载均衡
+ * 支持多个 AI 提供商，自动故障转移
  */
 
 export interface AIProvider {
   name: string;
-  baseUrl: string;
+  baseURL: string;
   model: string;
   apiKey: string;
   priority: number; // 优先级，数字越小优先级越高
@@ -17,69 +17,75 @@ export interface AIProvider {
 export const AI_PROVIDERS: AIProvider[] = [
   {
     name: 'cerebras',
-    baseUrl: 'https://crhidybdmoau.ap-northeast-1.clawcloudrun.com/proxy/cerebras/v1',
-    model: 'gpt-oss-120b',
-    apiKey: process.env.AI_API_KEY || 'whshang',
+    baseURL: 'https://your-api-gateway.com/proxy/cerebras/v1',
+    model: 'llama3.1-70b',
+    apiKey: process.env.AI_API_KEY_CEREBRAS || process.env.AI_API_KEY || 'your-api-key',
     priority: 1,
     timeout: 30000,
     maxRetries: 2
   },
   {
     name: 'gemini',
-    baseUrl: 'https://crhidybdmoau.ap-northeast-1.clawcloudrun.com/proxy/gemini/v1beta/openai',
-    model: 'gemini-2.5-flash',
-    apiKey: process.env.AI_API_KEY || 'whshang',
+    baseURL: 'https://your-api-gateway.com/proxy/gemini/v1beta/openai',
+    model: 'gemini-2.0-flash-exp',
+    apiKey: process.env.AI_API_KEY_GEMINI || process.env.AI_API_KEY || 'your-api-key',
     priority: 2,
-    timeout: 25000,
+    timeout: 30000,
     maxRetries: 2
   },
-  // 可以继续添加更多备选提供商
   {
     name: 'openai',
-    baseUrl: 'https://api.openai.com/v1',
+    baseURL: 'https://api.openai.com/v1',
     model: 'gpt-3.5-turbo',
-    apiKey: process.env.OPENAI_API_KEY || '',
+    apiKey: process.env.AI_API_KEY_OPENAI || 'your-openai-api-key',
     priority: 3,
-    timeout: 20000,
-    maxRetries: 1
+    timeout: 30000,
+    maxRetries: 2
   }
-].filter(p => p.apiKey); // 过滤掉没有 API Key 的提供商
+];
 
-// 系统提示词配置
+// 系统提示词
 export const SYSTEM_PROMPTS = {
-  coach: `你是一个专业的认知训练教练。你的任务是：
-1. 分析用户的训练数据和表现
-2. 提供个性化的训练建议
-3. 用鼓励和科学的方式激励用户
-4. 回答要简洁、实用、充满正能量
-5. 适时引用认知科学研究支持你的建议`,
+  trainingAdvice: `你是一位专业的认知训练教练。根据用户的游戏表现数据，提供个性化的训练建议。
+请注意：
+1. 用温暖鼓励的语气
+2. 结合具体数据给出建议
+3. 建议要具体可行
+4. 每次回复控制在100字以内`,
 
-  analyzer: `你是一个认知能力分析专家。基于用户的游戏表现数据，你需要：
-1. 识别用户的认知强项和弱项
-2. 解释表现背后的认知机制
-3. 预测最适合的训练方向
-4. 用通俗易懂的语言解释专业概念`,
+  performanceAnalysis: `你是一位认知科学专家。分析用户的游戏表现趋势，识别优势和改进空间。
+请注意：
+1. 基于数据客观分析
+2. 突出进步和亮点
+3. 委婉指出需要改进的地方
+4. 提供科学的解释`,
 
-  motivator: `你是一个充满活力的激励教练。你的风格是：
-1. 永远保持积极乐观
-2. 善于发现用户的每一个小进步
-3. 用生动的比喻和故事激励用户
-4. 创造有趣的挑战目标
-5. 让用户感受到训练的乐趣而不是压力`
+  motivation: `你是一位充满正能量的激励教练。根据用户状态提供个性化的鼓励。
+请注意：
+1. 真诚且充满热情
+2. 个性化的鼓励语
+3. 激发用户继续训练的动力
+4. 简短有力，不超过50字`,
+
+  generalChat: `你是脑力训练APP的AI助手。友好地回答用户关于认知训练、游戏技巧、大脑健康等问题。
+请注意：
+1. 专业但易懂
+2. 积极正面
+3. 提供实用建议
+4. 适时推荐相关训练`
 };
 
-// 请求配置
+// AI 请求配置
 export const AI_REQUEST_CONFIG = {
-  defaultTemperature: 0.7,
-  defaultMaxTokens: 500,
-  defaultTopP: 0.9,
-  streamEnabled: true
+  temperature: 0.7,
+  max_tokens: 500,
+  stream: false
 };
 
-// 错误重试配置
+// 重试配置
 export const RETRY_CONFIG = {
-  retryDelay: 1000, // 基础重试延迟（毫秒）
-  backoffMultiplier: 2, // 退避乘数
+  maxRetries: 3,
+  retryDelay: 1000, // 初始重试延迟（毫秒）
   maxRetryDelay: 10000, // 最大重试延迟
-  jitter: true // 是否添加随机抖动
+  backoffMultiplier: 2 // 指数退避倍数
 };

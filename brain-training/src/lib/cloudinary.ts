@@ -20,7 +20,7 @@ class CloudinaryService {
   private uploadPreset: string = 'brain-training'; // 需要在 Cloudinary 控制台创建
 
   constructor() {
-    this.cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dlkr7fot9';
+    this.cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'your-cloud-name';
   }
 
   /**
