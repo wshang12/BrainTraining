@@ -1,43 +1,285 @@
 @import "tailwindcss";
 
+/* 品牌色彩系统 - 不是随便选的颜色，而是精心设计的情感触发器 */
 :root {
+  /* 基础层：冷静与信任 */
+  --color-genius-50: #f0f9ff;
+  --color-genius-100: #e0f2fe;
+  --color-genius-200: #bae6fd;
+  --color-genius-300: #7dd3fc;
+  --color-genius-400: #38bdf8;
+  --color-genius-500: #0ea5e9;
+  --color-genius-600: #0284c7;
+  --color-genius-700: #0369a1;
+  --color-genius-800: #075985;
+  --color-genius-900: #0c4a6e;
+  
+  /* 激情层：挑战与成就 */
+  --color-fire-400: #f87171;
+  --color-fire-500: #ef4444;
+  --color-fire-600: #dc2626;
+  
+  /* 智慧层：深度思考 */
+  --color-wisdom-400: #a78bfa;
+  --color-wisdom-500: #8b5cf6;
+  --color-wisdom-600: #7c3aed;
+  
+  /* 成长层：进步与希望 */
+  --color-growth-400: #4ade80;
+  --color-growth-500: #22c55e;
+  --color-growth-600: #16a34a;
+  
+  /* 动态变量 */
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #0f172a;
+  --card-background: #ffffff;
   --base-font-size: 16px;
+  
+  /* 动画时间 - 快但不急躁 */
+  --animation-fast: 150ms;
+  --animation-base: 300ms;
+  --animation-slow: 500ms;
+  
+  /* 阴影系统 - 创造深度 */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-base: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+  --shadow-glow: 0 0 20px rgb(14 165 233 / 0.2);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-genius: var(--color-genius-500);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
+/* 暗黑模式：不是简单的反色，而是另一种情绪 */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #030712;
+    --foreground: #f1f5f9;
+    --card-background: #0f172a;
+    --shadow-glow: 0 0 30px rgb(14 165 233 / 0.3);
   }
 }
 
-html { font-size: var(--base-font-size); }
+/* 基础重置 - 精确到像素 */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html { 
+  font-size: var(--base-font-size);
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.6;
+  letter-spacing: -0.02em;
 }
 
-/***** App Shell *****/
-.tabbar-safe { padding-bottom: calc(env(safe-area-inset-bottom) + 72px); }
-.fixed-tabbar { height: 72px; padding-bottom: env(safe-area-inset-bottom); }
-.touch-lg { min-height: 48px; min-width: 48px; }
+/* 核心组件样式 */
+.hero-gradient {
+  background: linear-gradient(135deg, var(--color-genius-500) 0%, var(--color-wisdom-500) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
 
-/***** Accessibility toggles *****/
+.card-interactive {
+  background: var(--card-background);
+  border-radius: 16px;
+  transition: all var(--animation-base) cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-base);
+}
+
+.card-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.card-interactive:active {
+  transform: translateY(0);
+  transition-duration: var(--animation-fast);
+}
+
+/* 按钮系统 - 每个状态都经过精心设计 */
+.btn {
+  position: relative;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  border-radius: 12px;
+  transition: all var(--animation-base) cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(255,255,255,0.2), transparent 70%);
+  opacity: 0;
+  transition: opacity var(--animation-fast);
+}
+
+.btn:hover::before {
+  opacity: 1;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--color-genius-500), var(--color-genius-600));
+  color: white;
+  box-shadow: 0 4px 14px 0 rgb(14 165 233 / 0.3);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 6px 20px 0 rgb(14 165 233 / 0.4);
+}
+
+/* 游戏卡片 - 不只是容器，是体验的开始 */
+.game-card {
+  position: relative;
+  background: var(--card-background);
+  border-radius: 20px;
+  overflow: hidden;
+  transition: all var(--animation-base) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.game-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-genius-500), var(--color-wisdom-500));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--animation-slow) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.game-card:hover::before {
+  transform: scaleX(1);
+}
+
+/* 进度环 - 可视化成就感 */
+.progress-ring {
+  transform: rotate(-90deg);
+  transition: stroke-dasharray var(--animation-slow) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 微动效 - 创造生命力 */
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: var(--shadow-base); }
+  50% { box-shadow: var(--shadow-glow); }
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-float {
+  animation: float 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-glow {
+  animation: glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* App Shell 优化 */
+.tabbar-safe { 
+  padding-bottom: calc(env(safe-area-inset-bottom) + 72px); 
+}
+
+.fixed-tabbar { 
+  height: 72px;
+  padding-bottom: env(safe-area-inset-bottom);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgb(0 0 0 / 0.05);
+  background: var(--background) / 0.8;
+}
+
+.touch-target { 
+  min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 无障碍增强 */
 .high-contrast {
   --background: #000000;
   --foreground: #ffffff;
+  --card-background: #1a1a1a;
 }
+
+.high-contrast .btn-primary {
+  background: var(--color-genius-500);
+  outline: 2px solid white;
+  outline-offset: 2px;
+}
+
 .large-text {
-  --base-font-size: 18px; /* default large; can add larger tiers later */
+  --base-font-size: 18px;
+}
+
+.large-text .btn {
+  padding: 14px 24px;
+  font-size: 1.1rem;
+}
+
+/* 焦点样式 - 美观且易用 */
+*:focus-visible {
+  outline: 2px solid var(--color-genius-500);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* 加载状态 - 让等待变成期待 */
+.skeleton {
+  background: linear-gradient(90deg, 
+    var(--card-background) 25%, 
+    rgb(255 255 255 / 0.1) 50%, 
+    var(--card-background) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* 性能优化 */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
