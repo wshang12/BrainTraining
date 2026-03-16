@@ -6,26 +6,33 @@ import { randomUUID } from "crypto";
 
 const FREE_PLAYS_PER_DAY = 3;
 const ADS_PER_DAY = 3;
+const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK === "true";
 
 export async function GET(req: NextRequest) {
   const cookie = req.cookies.get("uid");
   const uid = cookie?.value ?? randomUUID();
 
-  // init daily counters if missing
-  const freeKey = dayKey(uid, "freePlays");
-  const adsKey = dayKey(uid, "adsLeft");
-  const arr1 = (await kv.mget(freeKey, adsKey)) as (number | null)[];
-  let freePlays = arr1[0] as number | null;
-  let adsLeft = arr1[1] as number | null;
-  if (freePlays == null) await kv.set(freeKey, FREE_PLAYS_PER_DAY, { ex: 60 * 60 * 24 });
-  if (adsLeft == null) await kv.set(adsKey, ADS_PER_DAY, { ex: 60 * 60 * 24 });
-  const arr2 = (await kv.mget(freeKey, adsKey)) as (number | null)[];
-  freePlays = arr2[0] ?? FREE_PLAYS_PER_DAY;
-  adsLeft = arr2[1] ?? ADS_PER_DAY;
+  let freePlays = FREE_PLAYS_PER_DAY;
+  let adsLeft = ADS_PER_DAY;
+  let cooldownSec = 0;
 
-  const cooldownKey = `u:${uid}:adCooldown`;
-  const ttl = await kv.ttl(cooldownKey);
-  const cooldownSec = ttl > 0 ? ttl : 0;
+  if (!USE_MOCK) {
+    // init daily counters if missing
+    const freeKey = dayKey(uid, "freePlays");
+    const adsKey = dayKey(uid, "adsLeft");
+    const arr1 = (await kv.mget(freeKey, adsKey)) as (number | null)[];
+    let freeTemp = arr1[0] as number | null;
+    let adsTemp = arr1[1] as number | null;
+    if (freeTemp == null) await kv.set(freeKey, FREE_PLAYS_PER_DAY, { ex: 60 * 60 * 24 });
+    if (adsTemp == null) await kv.set(adsKey, ADS_PER_DAY, { ex: 60 * 60 * 24 });
+    const arr2 = (await kv.mget(freeKey, adsKey)) as (number | null)[];
+    freePlays = arr2[0] ?? FREE_PLAYS_PER_DAY;
+    adsLeft = arr2[1] ?? ADS_PER_DAY;
+
+    const cooldownKey = `u:${uid}:adCooldown`;
+    const ttl = await kv.ttl(cooldownKey);
+    cooldownSec = ttl > 0 ? ttl : 0;
+  }
 
   const plan = [
     { gameId: "tracklight", label: "专注追光", suggestedDifficulty: 0.6 },
